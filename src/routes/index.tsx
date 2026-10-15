@@ -115,7 +115,7 @@ function App() {
 
       {cartOpen && <CartDrawer products={products} cart={cart} setCart={setCart} onClose={() => setCartOpen(false)}
         onCheckout={(order) => {
-          setProducts(products.map((p) => cart[p.id] ? { ...p, stock: p.stock - cart[p.id] } : p));
+          setProducts(products.map((p) => cart[p.id] ? { ...p, stock: p.stock - (cart[p.id] ?? 0) } : p));
           setOrders([order, ...orders]); setCart({});
         }} />}
 
@@ -188,15 +188,15 @@ function CartDrawer({ products, cart, setCart, onClose, onCheckout }: {
   const [done, setDone] = useState<Order | null>(null);
   const [step, setStep] = useState<"cart" | "form">("cart");
   const [form, setForm] = useState({ name: "", email: "", address: "" });
-  const [err, setErr] = useState<Record<string, string>>({});
-  const items = products.filter((p) => cart[p.id]).map((p) => ({ p, qty: cart[p.id] }));
+  const [err, setErr] = useState<Partial<Record<"name" | "email" | "address", string>>>({});
+  const items = products.filter((p) => cart[p.id]).map((p) => ({ p, qty: cart[p.id] ?? 0 }));
   const total = items.reduce((s, i) => s + i.p.price * i.qty, 0);
   useEffect(() => { const k = (e: KeyboardEvent) => e.key === "Escape" && onClose(); window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [onClose]);
 
   const setQty = (id: string, q: number) => { const n = { ...cart }; if (q <= 0) delete n[id]; else n[id] = q; setCart(n); };
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    const er: Record<string, string> = {};
+    const er: Partial<Record<"name" | "email" | "address", string>> = {};
     if (form.name.trim().length < 2) er.name = "Please enter your name.";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) er.email = "Enter a valid email.";
     if (form.address.trim().length < 8) er.address = "Enter a full address.";
@@ -273,8 +273,11 @@ function Admin({ products, setProducts, orders, notify, onReset }: {
   products: Product[]; setProducts: (p: Product[]) => void; orders: Order[]; notify: (m: string) => void; onReset: () => void;
 }) {
   const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState({ ...empty, price: "", stock: "" } as Record<string, string | number>);
-  const [err, setErr] = useState<Record<string, string>>({});
+  type F = { name: string; category: string; price: string; stock: string; description: string };
+  const blank: F = { ...empty, price: "", stock: "" };
+  const [form, setForm] = useState<F>(blank);
+  type E = Partial<Record<"name" | "price" | "stock", string>>;
+  const [err, setErr] = useState<E>({});
   const [confirm, setConfirm] = useState<Product | null>(null);
   const metrics = useMemo(() => ({
     products: products.length,
@@ -284,11 +287,11 @@ function Admin({ products, setProducts, orders, notify, onReset }: {
   }), [products, orders]);
   const lowItems = products.filter((p) => p.stock < LOW);
 
-  const reset = () => { setEditing(null); setForm({ ...empty, price: "", stock: "" }); setErr({}); };
+  const reset = () => { setEditing(null); setForm(blank); setErr({}); };
   const save = (e: FormEvent) => {
     e.preventDefault();
     const price = Number(form.price), stock = Number(form.stock), name = String(form.name).trim();
-    const er: Record<string, string> = {};
+    const er: E = {};
     if (name.length < 2) er.name = "Name must be at least 2 characters.";
     else if (products.some((p) => p.name.toLowerCase() === name.toLowerCase() && p.id !== editing)) er.name = "A product with this name exists.";
     if (!(price > 0)) er.price = "Price must be greater than 0.";
@@ -370,7 +373,7 @@ function Admin({ products, setProducts, orders, notify, onReset }: {
                       </div>
                     </td>
                     <td className="p-3 text-right whitespace-nowrap">
-                      <button className="rounded-md p-2 hover:bg-secondary" aria-label={`Edit ${p.name}`} onClick={() => { setEditing(p.id); setErr({}); setForm({ ...p, price: String(p.price), stock: String(p.stock) }); }}><Pencil className="h-4 w-4" /></button>
+                      <button className="rounded-md p-2 hover:bg-secondary" aria-label={`Edit ${p.name}`} onClick={() => { setEditing(p.id); setErr({}); setForm({ name: p.name, category: p.category, description: p.description, price: String(p.price), stock: String(p.stock) }); }}><Pencil className="h-4 w-4" /></button>
                       <button className="rounded-md p-2 text-destructive hover:bg-destructive/10" aria-label={`Delete ${p.name}`} onClick={() => setConfirm(p)}><Trash2 className="h-4 w-4" /></button>
                     </td>
                   </tr>
@@ -411,7 +414,7 @@ function Admin({ products, setProducts, orders, notify, onReset }: {
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div>
-      <label htmlFor={`f-${label.split(" ")[0].toLowerCase()}`} className="mb-1 block text-sm font-medium">{label}</label>
+      <label htmlFor={`f-${(label.split(" ")[0] ?? "").toLowerCase()}`} className="mb-1 block text-sm font-medium">{label}</label>
       {children}
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
