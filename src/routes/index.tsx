@@ -8,9 +8,9 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TechStore — Demo Electronics Store & Inventory Panel" },
-      { name: "description", content: "A student demonstration of an electronics e-commerce store with cart, simulated checkout and inventory management." },
-      { property: "og:title", content: "TechStore — Demo Store & Inventory" },
+      { title: "TechStore — Digital Litecracy Assignment 2" },
+      { name: "description", content: "Digital Litecracy Assignment 2: TechStore, a student demonstration of an electronics e-commerce store with cart, simulated checkout and inventory management." },
+      { property: "og:title", content: "TechStore — Digital Litecracy Assignment 2" },
       { property: "og:description", content: "Student project: e-commerce storefront with a working inventory management panel." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -110,7 +110,7 @@ function App() {
       </main>
 
       <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
-        TechStore · Digital Literacy Assignment 2 · All products and prices are fictional demo data.
+        TechStore · <span className="font-semibold text-foreground">Digital Litecracy Assignment 2</span> · All products and prices are fictional demo data.
       </footer>
 
       {cartOpen && <CartDrawer products={products} cart={cart} setCart={setCart} onClose={() => setCartOpen(false)}
@@ -434,10 +434,12 @@ function Empty({ icon: I, title, text }: { icon: typeof Search; title: string; t
 function About() {
   return (
     <section id="about" className="mt-20 rounded-2xl bg-primary p-8 text-primary-foreground sm:p-10">
-      <h2 className="font-display text-3xl font-semibold">About this project</h2>
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/60">Assignment</p>
+      <h2 className="mt-1 font-display text-3xl font-semibold">Digital Litecracy Assignment 2</h2>
       <p className="mt-3 max-w-2xl text-primary-foreground/80">
-        TechStore is a student demonstration of e-commerce and inventory management, built for a first-year B.Tech CSE
-        Digital Literacy assignment. All products, prices and orders are sample data stored only in your browser.
+        <b className="font-semibold text-primary-foreground">Digital Litecracy Assignment 2</b> — TechStore is a student demonstration of
+        e-commerce and inventory management, built for a first-year B.Tech CSE
+        digital literacy course. All products, prices and orders are sample data stored only in your browser.
         No real payments are processed and no real sales have taken place.
       </p>
     </section>
