@@ -411,7 +411,7 @@ function Admin({ products, setProducts, orders, notify, onReset }: {
   );
 }
 
-function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+function Field({ label, error, children }: { label: string; error?: string | undefined; children: React.ReactNode }) {
   return (
     <div>
       <label htmlFor={`f-${(label.split(" ")[0] ?? "").toLowerCase()}`} className="mb-1 block text-sm font-medium">{label}</label>
